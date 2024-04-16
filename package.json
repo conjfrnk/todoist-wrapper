@@ -9,20 +9,13 @@
         "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=bin",
         "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=bin",
         "package-all": "npm run package-win && npm run package-mac && npm run package-linux",
-        "postinstall": "node scripts/setup-bin.js"
+        "postinstall": "node scripts/postinstall.js"
     },
     "author": "Connor Frank",
     "license": "SEE LICENSE IN LICENSE",
     "devDependencies": {
         "@electron/packager": "^18.3.2",
         "electron": "^30.0.0"
-    },
-    "pkg": {
-        "targets": [
-            "node14-win-x64",
-            "node14-linux-x64",
-            "node14-macos-x64"
-        ]
     },
     "bin": {
         "todoist-wrapper": "./bin/todoist-wrapper"
