@@ -1,6 +1,6 @@
 const { app, BrowserWindow, Menu } = require('electron')
 const Store = require('electron-store')
-const store = new Store();
+const store = new Store({name: 'todoist-wrapper-config'});
 
 let win
 
