@@ -1,6 +1,6 @@
 {
     "name": "todoist-wrapper",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Electron Wrapper for Todoist",
     "main": "index.js",
     "scripts": {
@@ -8,16 +8,12 @@
         "package-win": "electron-packager . --overwrite --platform=win32 --arch=x64 --out=bin",
         "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=bin",
         "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=bin",
-        "package-all": "npm run package-win && npm run package-mac && npm run package-linux",
-        "postinstall": "node postinstall.js"
+        "package-all": "npm run package-win && npm run package-mac && npm run package-linux"
     },
     "author": "Connor Frank",
     "license": "SEE LICENSE IN LICENSE",
     "devDependencies": {
         "@electron/packager": "^18.3.2",
         "electron": "^30.0.0"
-    },
-    "bin": {
-        "todoist-wrapper": "./bin/todoist-wrapper"
     }
 }
