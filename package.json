@@ -1,0 +1,14 @@
+{
+  "name": "todoist-wrapper",
+  "version": "1.0.0",
+  "description": "Electron Wrapper for Todoist",
+  "main": "index.js",
+  "scripts": {
+      "start": "electron ."
+  },
+  "author": "Connor Frank",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "electron": "^30.0.0"
+  }
+}
