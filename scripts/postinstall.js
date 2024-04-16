@@ -5,7 +5,7 @@ const path = require('path');
 const os = require('os');
 
 // Retrieve package version from package.json
-const packageJsonPath = path.join(__dirname, 'package.json');
+const packageJsonPath = path.join(__dirname, '..', 'package.json');
 const packageJson = require(packageJsonPath);
 const version = packageJson.version;  // Use the version from your package.json
 
