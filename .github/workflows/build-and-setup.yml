@@ -1,0 +1,40 @@
+name: Build and Setup Binaries
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # Make sure to match the Node version you are using
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Build all packages
+      run: npm run package-all
+
+    - name: Setup executable binaries
+      run: node scripts/setup-bin.js
+
+    - name: Commit binaries
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add bin/*  # Add all built binaries
+        git commit -m "Automatically commit binaries [skip ci]" -a || echo "No changes to commit"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
