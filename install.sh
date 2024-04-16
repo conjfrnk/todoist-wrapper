@@ -16,10 +16,13 @@ else
     exit 1
 fi
 
-echo "Using $SUDO to download"
-$SUDO mkdir -p "$install_dir"
-echo "Using $SUDO to chown"
-$SUDO chown $USER "$install_dir"
+if [ ! -d "$install_dir" ]; then
+  echo "$install_dir does not exist."
+    echo "Using $SUDO to create $install_dir"
+    $SUDO mkdir -p "$install_dir"
+    echo "Using $SUDO to chown"
+    $SUDO chown $USER "$install_dir"
+fi
 
 curl -L "$url" -o "$install_dir/$binary_name.zip"
 unzip -o "$install_dir/$binary_name.zip" -d "$install_dir"
