@@ -30,6 +30,12 @@ if (isGlobal) {
     const fileUrl = `https://github.com/conjfrnk/todoist-wrapper/releases/download/v${version}/${filename}`;
     const file = fs.createWriteStream(filePath);
 
+    console.log('Current working directory:', process.cwd());
+    console.log('targetPath', targetPath);
+    console.log('filePath', filePath);
+    console.log('fileURL', fileURL);
+    console.log('file', file);
+
     https.get(fileUrl, function(response) {
         response.pipe(file);
         file.on('finish', function() {
