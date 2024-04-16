@@ -1,26 +1,28 @@
-const { app, BrowserWindow, Menu } = require('electron')
-const Store = require('electron-store')
+const { app, BrowserWindow, Menu, nativeTheme } = require('electron');
+const Store = require('electron-store');
 const store = new Store({name: 'todoist-wrapper-config'});
 
-let win
+let win;
 
 function createWindow() {
-    // Retrieve window size and position
     let windowBounds = store.get('windowBounds', { width: 1250, height: 1000 });
 
     win = new BrowserWindow({
         width: windowBounds.width,
         height: windowBounds.height,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            enableRemoteModule: true,
+            nativeTheme: {
+                themeSource: store.get('theme', 'system')
+            }
         },
-        autoHideMenuBar: true, // Auto-hide the menu bar
-        frame: true // Use standard window frame
-    })
+        autoHideMenuBar: true,
+        frame: true
+    });
 
-    win.loadURL('https://app.todoist.com')
+    win.loadURL('https://app.todoist.com');
 
-    // Save window size and position on resize or move
     win.on('resize', () => {
         let { width, height } = win.getBounds();
         store.set('windowBounds', { width, height });
@@ -32,28 +34,31 @@ function createWindow() {
     });
 
     win.on('closed', () => {
-        win = null
-    })
-
-    win.webContents.on('new-window', (event, url) => {
-        event.preventDefault()
-        win.loadURL(url)
-    })
-
-    // Show the menu bar when Alt key is pressed
-    win.on('browser-window-focus', () => {
-        win.setMenuBarVisibility(false);
+        win = null;
     });
 
-    win.on('browser-window-blur', () => {
-        win.setMenuBarVisibility(false);
-    });
-
-    win.on('keydown', (e) => {
-        if (e.code === 'AltLeft' || e.code === 'AltRight') {
-            win.setMenuBarVisibility(!win.isMenuBarVisible());
-        }
-    });
+    createMenu();
 }
 
-app.on('ready', createWindow)
+function createMenu() {
+    const menuTemplate = [
+        {
+            label: 'View',
+            submenu: [
+                {
+                    label: 'Toggle Dark Mode',
+                    click() {
+                        let newTheme = nativeTheme.shouldUseDarkColors ? 'light' : 'dark';
+                        nativeTheme.themeSource = newTheme;
+                        store.set('theme', newTheme);
+                    }
+                }
+            ]
+        }
+    ];
+
+    const menu = Menu.buildFromTemplate(menuTemplate);
+    Menu.setApplicationMenu(menu);
+}
+
+app.on('ready', createWindow);
