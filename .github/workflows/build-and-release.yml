@@ -44,7 +44,6 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./bin/todoist-wrapper-darwin-x64/todoist-wrapper.zip
           asset_name: todoist-wrapper-darwin-x64.zip
-          asset_content_type: application/zip
   
       - name: Upload Linux Release Assets
         uses: actions/upload-release-asset@v1
@@ -54,7 +53,6 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./bin/todoist-wrapper-linux-x64/todoist-wrapper.zip
           asset_name: todoist-wrapper-linux-x64.zip
-          asset_content_type: application/zip
 
       - name: Upload Windows Release Assets
         uses: actions/upload-release-asset@v1
@@ -63,6 +61,4 @@ jobs:
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./bin/todoist-wrapper-win32-x64/todoist-wrapper.zip
-          asset_name: todoist-wrapper-win32-x64.zip
-          asset_content_type: application/zip
-          
+          asset_name: todoist-wrapper-win32-x64.zip          
