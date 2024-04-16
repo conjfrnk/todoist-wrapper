@@ -23,10 +23,7 @@ jobs:
 
     - name: Build all packages
       run: npm run package-all
-
-    - name: Setup executable binaries
-      run: node scripts/setup-bin.js
-
+      
     - name: Commit binaries
       run: |
         git config --local user.email "action@github.com"
