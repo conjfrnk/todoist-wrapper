@@ -15,8 +15,7 @@
     "license": "SEE LICENSE IN LICENSE",
     "devDependencies": {
         "@electron/packager": "^18.3.2",
-        "electron": "^30.0.0",
-        "adm-zip": "^0.5.12"
+        "electron": "^30.0.0"
     },
     "bin": {
         "todoist-wrapper": "./bin/todoist-wrapper"

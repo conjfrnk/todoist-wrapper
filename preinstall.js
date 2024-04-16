@@ -4,56 +4,55 @@ if (isGlobal) {
     const fs = require('fs');
     const os = require('os');
     const path = require('path');
-    const AdmZip = require('adm-zip');
+    const { exec } = require('child_process');
 
-    const version = require('package.json').version;
+    const packageJsonPath = path.join(__dirname, 'package.json');
+    const packageJson = require(packageJsonPath);
+    const version = packageJson.version;
+
     const platform = os.platform();
+    let filename, extractCommand;
 
-    let filename;
-    switch (platform) {
-        case 'win32':
-            filename = `todoist-wrapper-win32-x64.zip`;
-            break;
-        case 'darwin':
-            filename = `todoist-wrapper-darwin-x64.zip`;
-            break;
-        case 'linux':
-            filename = `todoist-wrapper-linux-x64.zip`;
-            break;
-        default:
-            throw new Error('Unsupported platform');
+    // Define the directory where you want to extract your binaries
+    const targetExtractionPath = path.join(__dirname, 'bin', 'todoist-wrapper');
+
+    // Update the extraction commands to point to the targetExtractionPath
+    if (platform === 'win32') {
+        filename = `todoist-wrapper-win32-x64.zip`;
+        // Adjust the command to extract to the specified directory for Windows
+        extractCommand = `powershell -command "Expand-Archive -Path ${filename} -DestinationPath ${targetExtractionPath}"`;
+    } else {
+        filename = `todoist-wrapper-${platform}-x64.zip`;
+        extractCommand = `unzip -o ${filename} -d ${targetExtractionPath}`;
     }
 
-    const targetPath = path.join(__dirname, 'bin');
     const filePath = path.join(__dirname, filename);
-
     const fileUrl = `https://github.com/conjfrnk/todoist-wrapper/releases/download/v${version}/${filename}`;
+
     const file = fs.createWriteStream(filePath);
-
-    console.log('Current working directory:', process.cwd());
-    console.log('targetPath', targetPath);
-    console.log('filePath', filePath);
-    console.log('fileURL', fileURL);
-    console.log('file', file);
-
     https.get(fileUrl, function(response) {
         response.pipe(file);
+
         file.on('finish', function() {
             file.close();
             console.log('Download Completed');
 
-            const zip = new AdmZip(filePath);
-            zip.extractAllTo(targetPath, true);
-
-            const extractedFilePath = path.join(targetPath, 'todoist-wrapper'); // Adjust this path if the binary is nested in folders within the zip
-            if (platform !== 'win32') {
-                fs.chmodSync(extractedFilePath, '755'); // Make file executable on Unix
-            }
-
-            console.log('Extraction completed to', extractedFilePath);
+            // Execute the extraction command
+            exec(extractCommand, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Extraction error: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    console.error(`Extraction stderr: ${stderr}`);
+                    return;
+                }
+                console.log(`Extraction stdout: ${stdout}`);
+            });
         });
     }).on('error', function(err) {
-        fs.unlink(filePath, () => {});
-        console.error('Error downloading the file:', err.message);
+        fs.unlink(filePath, () => {});  // Delete the corrupt file
+        console.error('Failed to download:', err.message);
     });
+
 }
