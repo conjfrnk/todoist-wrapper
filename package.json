@@ -1,17 +1,26 @@
 {
-  "name": "todoist-wrapper",
-  "version": "1.0.0",
-  "description": "Electron Wrapper for Todoist",
-  "main": "index.js",
-  "scripts": {
-    "start": "electron ."
-  },
-  "author": "Connor Frank",
-  "license": "SEE LICENSE IN LICENSE",
-  "dependencies": {
-    "electron": "^30.0.0"
-  },
-  "devDependencies": {
-    "@electron/packager": "^18.3.2"
-  }
+    "name": "todoist-wrapper",
+    "version": "1.0.0",
+    "description": "Electron Wrapper for Todoist",
+    "main": "index.js",
+    "scripts": {
+        "start": "electron .",
+        "package-win": "electron-packager . --overwrite --platform=win32 --arch=x64 --out=bin",
+        "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=bin",
+        "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=bin",
+        "package-all": "npm run package-win && npm run package-mac && npm run package-linux"
+    },
+    "author": "Connor Frank",
+    "license": "SEE LICENSE IN LICENSE",
+    "devDependencies": {
+        "@electron/packager": "^18.3.2",
+        "electron": "^30.0.0"
+    },
+    "pkg": {
+        "targets": [
+            "node14-win-x64",
+            "node14-linux-x64",
+            "node14-macos-x64"
+        ]
+    }
 }
