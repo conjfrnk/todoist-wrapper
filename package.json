@@ -9,7 +9,7 @@
         "package-mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=bin",
         "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=bin",
         "package-all": "npm run package-win && npm run package-mac && npm run package-linux",
-        "postinstall": "node scripts/postinstall.js"
+        "postinstall": "node postinstall.js"
     },
     "author": "Connor Frank",
     "license": "SEE LICENSE IN LICENSE",
@@ -19,5 +19,8 @@
     },
     "bin": {
         "todoist-wrapper": "./bin/todoist-wrapper"
+    },
+    "dependencies": {
+        "adm-zip": "^0.5.12"
     }
 }
