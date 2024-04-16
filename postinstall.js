@@ -4,55 +4,48 @@ if (isGlobal) {
     const fs = require('fs');
     const os = require('os');
     const path = require('path');
-    const { exec } = require('child_process');
-
-    const packageJsonPath = path.join(__dirname, 'package.json');
-    const packageJson = require(packageJsonPath);
-    const version = packageJson.version;
 
     const platform = os.platform();
-    let filename, extractCommand;
-
-    // Define the directory where you want to extract your binaries
-    const targetExtractionPath = path.join(__dirname, 'bin', 'todoist-wrapper');
-
-    // Update the extraction commands to point to the targetExtractionPath
-    if (platform === 'win32') {
-        filename = `todoist-wrapper-win32-x64.zip`;
-        // Adjust the command to extract to the specified directory for Windows
-        extractCommand = `powershell -command "Expand-Archive -Path ${filename} -DestinationPath ${targetExtractionPath}"`;
-    } else {
-        filename = `todoist-wrapper-${platform}-x64.zip`;
-        extractCommand = `unzip -o ${filename} -d ${targetExtractionPath}`;
+    let binaryName;
+    switch(platform) {
+        case 'win32': binaryName = 'todoist-wrapper-win32-x64.exe'; break;
+        case 'darwin': binaryName = 'todoist-wrapper-darwin-x64'; break;
+        case 'linux': binaryName = 'todoist-wrapper-linux-x64'; break;
+        default: throw new Error(`Unsupported platform: ${platform}`);
     }
 
-    const filePath = path.join(__dirname, filename);
-    const fileUrl = `https://github.com/conjfrnk/todoist-wrapper/releases/download/v${version}/${filename}`;
+    const url = `https://github.com/conjfrnk/todoist-wrapper/releases/latest/download/${binaryName}`;
 
-    const file = fs.createWriteStream(filePath);
-    https.get(fileUrl, function(response) {
-        response.pipe(file);
+    const binPath = path.join(__dirname, 'bin');
+    const filePath = path.join(binPath, 'todoist-wrapper');
 
-        file.on('finish', function() {
-            file.close();
-            console.log('Download Completed');
+    // Ensure the bin directory exists
+    fs.mkdirSync(binPath, { recursive: true });
 
-            // Execute the extraction command
-            exec(extractCommand, (error, stdout, stderr) => {
-                if (error) {
-                    console.error(`Extraction error: ${error.message}`);
-                    return;
-                }
-                if (stderr) {
-                    console.error(`Extraction stderr: ${stderr}`);
-                    return;
-                }
-                console.log(`Extraction stdout: ${stdout}`);
+    // Function to download the file
+    const download = (url, dest, cb) => {
+        const file = fs.createWriteStream(dest);
+        https.get(url, (response) => {
+            response.pipe(file);
+            file.on('finish', () => {
+                file.close(cb);
+                // Make sure the binary is executable
+                fs.chmodSync(dest, 0o755);
             });
+        }).on('error', (err) => {
+            fs.unlink(dest, () => {}); // Delete the file async if there was an error
+            cb(err.message);
         });
-    }).on('error', function(err) {
-        fs.unlink(filePath, () => {});  // Delete the corrupt file
-        console.error('Failed to download:', err.message);
+    };
+
+    // Download and save the binary to the 'bin' directory
+    download(url, filePath, (error) => {
+        if (error) {
+            console.error('Failed to download and save binary:', error);
+            process.exit(1);
+        } else {
+            console.log('Binary downloaded and installed successfully.');
+        }
     });
 
 }
