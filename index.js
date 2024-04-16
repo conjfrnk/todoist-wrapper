@@ -1,8 +1,15 @@
-const { app, BrowserWindow, Menu, nativeTheme } = require('electron');
+const { app, BrowserWindow, nativeTheme } = require('electron');
 const Store = require('electron-store');
 const store = new Store({name: 'todoist-wrapper-config'});
 
 let win;
+
+function toggleThemeByTime() {
+    const hour = new Date().getHours();
+    const newTheme = (hour >= 6 && hour < 18) ? 'light' : 'dark';
+    nativeTheme.themeSource = newTheme;
+    store.set('theme', newTheme);
+}
 
 function createWindow() {
     let windowBounds = store.get('windowBounds', { width: 1250, height: 1000 });
@@ -13,13 +20,12 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true,
-            nativeTheme: {
-                themeSource: store.get('theme', 'system')
-            }
         },
         autoHideMenuBar: true,
         frame: true
     });
+
+    toggleThemeByTime();
 
     win.loadURL('https://app.todoist.com');
 
@@ -37,28 +43,7 @@ function createWindow() {
         win = null;
     });
 
-    createMenu();
-}
-
-function createMenu() {
-    const menuTemplate = [
-        {
-            label: 'View',
-            submenu: [
-                {
-                    label: 'Toggle Dark Mode',
-                    click() {
-                        let newTheme = nativeTheme.shouldUseDarkColors ? 'light' : 'dark';
-                        nativeTheme.themeSource = newTheme;
-                        store.set('theme', newTheme);
-                    }
-                }
-            ]
-        }
-    ];
-
-    const menu = Menu.buildFromTemplate(menuTemplate);
-    Menu.setApplicationMenu(menu);
+    setInterval(toggleThemeByTime, 60 * 1000); // Refresh every minute
 }
 
 app.on('ready', createWindow);
