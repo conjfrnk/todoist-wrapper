@@ -28,7 +28,7 @@ if (isGlobal) {
             console.log('Download Completed');
 
             try {
-                execSync(`unzip -o ${filePath} -d ${path.join(__dirname, 'target_directory')}`); // Ensure target_directory is correct
+                execSync(`unzip -o ${filePath} -d ${path.join(__dirname, '..', 'bin/todoist-wrapper')}`); // Ensure target_directory is correct
                 console.log('Extraction completed');
             } catch (error) {
                 console.error('Failed to extract:', error);
