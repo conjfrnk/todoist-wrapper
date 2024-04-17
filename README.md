@@ -1,5 +1,5 @@
 # todoist-wrapper
-Electron Wrapper for ![Todoist](https://app.todoist.com). I made my own because ![the Flatpak](https://github.com/flathub/com.todoist.Todoist) was 5+ months old. So outdated, in fact, that it couldn't run on my computer anymore.
+Electron Wrapper for [Todoist](https://app.todoist.com). I made my own because [the Flatpak](https://github.com/flathub/com.todoist.Todoist) was 5+ months old. So outdated, in fact, that it couldn't run on my computer anymore.
 
 Also, this has Wayland support.
 
