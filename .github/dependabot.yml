@@ -1,0 +1,7 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/" # Location of package.json, use "/subfolder" if it's not in the root
+    schedule:
+      interval: "daily" # Options: "daily", "weekly", "monthly"
+    open-pull-requests-limit: 15 # Maximum number of open pull requests
