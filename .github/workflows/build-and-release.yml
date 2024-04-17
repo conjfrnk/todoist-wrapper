@@ -16,27 +16,21 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v2
       with:
-        node-version: '16'
+        node-version: '18'
 
     - name: Install dependencies
       run: npm install
 
     - name: Build all packages
-      run: npm run package-all
+      run: npm run package-linux
 
-    - name: Zip binaries
-      run: |
-        zip -r bin/todoist-wrapper-win32-x64.zip bin/todoist-wrapper-win32-x64/
-        zip -r bin/todoist-wrapper-darwin-x64.zip bin/todoist-wrapper-darwin-x64/
-        zip -r bin/todoist-wrapper-linux-x64.zip bin/todoist-wrapper-linux-x64/
+    - name: Zip binary
+      run: zip -r bin/todoist-wrapper-linux-x64.zip bin/todoist-wrapper-linux-x64/
 
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v1
       with:
-        files: |
-          bin/todoist-wrapper-win32-x64.zip
-          bin/todoist-wrapper-darwin-x64.zip
-          bin/todoist-wrapper-linux-x64.zip
+        files: bin/todoist-wrapper-linux-x64.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
