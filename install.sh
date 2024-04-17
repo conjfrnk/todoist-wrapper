@@ -27,7 +27,9 @@ fi
 curl -L "$url" -o "$install_dir/$binary_name.zip"
 unzip -o "$install_dir/$binary_name.zip" -d "$install_dir"
 
-echo "Using $SUDO to symlink into /usr/bin"
-$SUDO ln -sf "$bin_dir/$binary_name/todoist-wrapper" /usr/bin/todoist-wrapper
+if [ ! -d "$install_dir" ]; then
+    echo "Using $SUDO to symlink into /usr/bin"
+    $SUDO ln -sf "$bin_dir/$binary_name/todoist-wrapper" /usr/bin/todoist-wrapper
+fi
 
 echo "Installation completed successfully."

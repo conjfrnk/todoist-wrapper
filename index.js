@@ -22,7 +22,10 @@ function createWindow() {
             enableRemoteModule: true,
         },
         autoHideMenuBar: true,
-        frame: true
+        frame: true,
+        webPreferences: {
+            backgroundThrottling: false
+        }
     });
 
     toggleThemeByTime();
@@ -43,7 +46,7 @@ function createWindow() {
         win = null;
     });
 
-    setInterval(toggleThemeByTime, 60 * 1000); // Refresh every minute
+    setInterval(toggleThemeByTime, 5 * 60 * 1000); // Refresh every 5 minutes
 }
 
 app.on('ready', createWindow);
