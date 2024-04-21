@@ -38,7 +38,12 @@ function createWindow() {
     win.on('web-contents-created', (event, contents) => {
         win.on('will-attach-webview', (event, webPreferences, params) => {
             delete webPreferences.preload
-            if (!params.src.startsWith('https://app.todoist.com')) {
+            let url = params.src,
+                host = urlLib.parse(url).host;
+            let allowedHosts = [
+                'app.todoist.com'
+            ]
+            if (!allowedHosts.includes(host)) {
                 event.preventDefault()
             }
         })
