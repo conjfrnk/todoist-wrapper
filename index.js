@@ -24,6 +24,9 @@ function createWindow() {
         autoHideMenuBar: true,
         frame: true,
         webPreferences: {
+            contextIsolation: true,
+            nodeIntegration: false,
+            nodeIntegrationInWorker: false,
             backgroundThrottling: false
         }
     });
@@ -31,6 +34,29 @@ function createWindow() {
     toggleThemeByTime();
 
     win.loadURL('https://app.todoist.com');
+
+    win.on('web-contents-created', (event, contents) => {
+        win.on('will-attach-webview', (event, webPreferences, params) => {
+            delete webPreferences.preload
+            if (!params.src.startsWith('https://app.todoist.com')) {
+                event.preventDefault()
+            }
+        })
+        win.on('will-navigate', (event, navigationUrl) => {
+            const parsedUrl = new URL(navigationUrl)
+            if (parsedUrl.origin !== 'https://app.todoist.com') {
+                event.preventDefault()
+            }
+        })
+        contents.setWindowOpenHandler(({ url }) => {
+            if (isSafeForExternalOpen(url)) {
+                setImmediate(() => {
+                    shell.openExternal(url)
+                })
+            }
+            return { action: 'deny' }
+        })
+    })
 
     win.on('resize', () => {
         let { width, height } = win.getBounds();
