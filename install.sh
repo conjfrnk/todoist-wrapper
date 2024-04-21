@@ -17,7 +17,7 @@ else
 fi
 
 if [ ! -d "$install_dir" ]; then
-  echo "$install_dir does not exist."
+    echo "$install_dir does not exist."
     echo "Using $SUDO to create $install_dir"
     $SUDO mkdir -p "$install_dir"
     echo "Using $SUDO to chown"

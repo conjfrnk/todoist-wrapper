@@ -7,9 +7,11 @@ Also, this has Wayland support.
 I have implemented several of [these security recommendations](https://www.electronjs.org/docs/latest/tutorial/security) as of v2.0.0
 
 ## Install
-Use `install.sh` to install the binary file.
+Use `install.sh` to install the binary file
 
 I wish there was a way to be able to use `npm install -g conjfrnk/todoist-wrapper` or something like that, but I've experienced failure after failure with that so I'm sticking with what I know.
+
+Use `uninstall.sh` to uninstall everything
 
 ## Gentoo
 First add [my overlay](https://github.com/conjfrnk/overlay)
