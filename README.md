@@ -3,6 +3,9 @@ Electron Wrapper for [Todoist](https://app.todoist.com). I made my own because [
 
 Also, this has Wayland support.
 
+## Security
+I have implemented several of [these security recommendations](https://www.electronjs.org/docs/latest/tutorial/security) as of v2.0.0
+
 ## Install
 Use `install.sh` to install the binary file.
 
