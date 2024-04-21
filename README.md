@@ -8,8 +8,18 @@ Use `install.sh` to install the binary file.
 
 I wish there was a way to be able to use `npm install -g conjfrnk/todoist-wrapper` or something like that, but I've experienced failure after failure with that so I'm sticking with what I know.
 
-## Package Managers
-- Gentoo coming soon
+## Gentoo
+First add [my overlay](https://github.com/conjfrnk/overlay)
+
+`eselect repository add conjfrnk-overlay git https://github.com/conjfrnk/overlay.git`
+
+Then emerge the package
+
+`emerge todoist-wrapper`
+
+Note that this will install the binary package (compiled by GitHub Actions and released under [releases](https://github.com/conjfrnk/todoist-wrapper/releases/latest)) and will not compile from source. I am working on how to compile from source.
+
+## Other Package Managers
 - Fedora coming eventually
 - Debian coming at some point
 - Arch too? Sometime down the road
