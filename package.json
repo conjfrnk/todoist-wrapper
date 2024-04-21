@@ -9,9 +9,11 @@
     },
     "author": "Connor Frank",
     "license": "SEE LICENSE IN LICENSE",
-    "dependencies" : {
+    "dependencies": {
         "electron": "^30.0.1",
-        "electron-store": "^8.2.0",
+        "electron-store": "^8.2.0"
+    },
+    "devDependencies": {
         "@electron/packager": "^18.3.2"
     }
 }
