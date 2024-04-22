@@ -26,7 +26,6 @@ Note that this will install the binary package (compiled by GitHub Actions and r
 
 ## Other Package Managers
 - Fedora coming eventually
-- Debian coming at some point
 - Arch too? Sometime down the road
 
 ## Develop
