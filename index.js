@@ -1,14 +1,16 @@
-const { app, BrowserWindow, nativeTheme } = require('electron');
+const { app, BrowserWindow, nativeTheme, shell } = require('electron');
 const Store = require('electron-store');
-const store = new Store({name: 'todoist-wrapper-config'});
+const store = new Store({ name: 'todoist-wrapper-config' });
 
 let win;
 
 function toggleThemeByTime() {
     const hour = new Date().getHours();
     const newTheme = (hour >= 6 && hour < 18) ? 'light' : 'dark';
-    nativeTheme.themeSource = newTheme;
-    store.set('theme', newTheme);
+    if (nativeTheme.themeSource !== newTheme) {
+        nativeTheme.themeSource = newTheme;
+        store.set('theme', newTheme);
+    }
 }
 
 function createWindow() {
@@ -18,66 +20,51 @@ function createWindow() {
         width: windowBounds.width,
         height: windowBounds.height,
         webPreferences: {
-            nodeIntegration: true,
-            enableRemoteModule: true,
-        },
-        autoHideMenuBar: true,
-        frame: true,
-        webPreferences: {
             contextIsolation: true,
             nodeIntegration: false,
             nodeIntegrationInWorker: false,
-            backgroundThrottling: false
-        }
+            backgroundThrottling: false,
+            enableRemoteModule: false,
+        },
+        autoHideMenuBar: true,
+        frame: true
     });
 
     toggleThemeByTime();
-
     win.loadURL('https://app.todoist.com');
 
-    win.on('web-contents-created', (event, contents) => {
-        win.on('will-attach-webview', (event, webPreferences, params) => {
-            delete webPreferences.preload
-            let url = params.src,
-                host = urlLib.parse(url).host;
-            let allowedHosts = [
-                'app.todoist.com'
-            ]
-            if (!allowedHosts.includes(host)) {
-                event.preventDefault()
-            }
-        })
-        win.on('will-navigate', (event, navigationUrl) => {
-            const parsedUrl = new URL(navigationUrl)
+    function setupEventListeners(contents) {
+        contents.on('will-navigate', (event, navigationUrl) => {
+            const parsedUrl = new URL(navigationUrl);
             if (parsedUrl.origin !== 'https://app.todoist.com') {
-                event.preventDefault()
+                event.preventDefault();
             }
-        })
+        });
+
         contents.setWindowOpenHandler(({ url }) => {
             if (isSafeForExternalOpen(url)) {
-                setImmediate(() => {
-                    shell.openExternal(url)
-                })
+                setImmediate(() => shell.openExternal(url));
             }
-            return { action: 'deny' }
-        })
-    })
+            return { action: 'deny' };
+        });
+    }
 
-    win.on('resize', () => {
-        let { width, height } = win.getBounds();
-        store.set('windowBounds', { width, height });
+    win.webContents.on('did-finish-load', () => {
+        setupEventListeners(win.webContents);
     });
 
-    win.on('move', () => {
-        let { x, y } = win.getBounds();
-        store.set('windowBounds', { x, y });
+    let resizeTimeout;
+    win.on('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            let { width, height } = win.getBounds();
+            store.set('windowBounds', { width, height });
+        }, 1000);
     });
 
     win.on('closed', () => {
         win = null;
     });
-
-    setInterval(toggleThemeByTime, 5 * 60 * 1000); // Refresh every 5 minutes
 }
 
 app.on('ready', createWindow);
