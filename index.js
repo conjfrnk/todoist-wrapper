@@ -19,11 +19,11 @@ function createWindow() {
     win = new BrowserWindow({
         width: windowBounds.width,
         height: windowBounds.height,
+        backgroundThrottling: true,
         webPreferences: {
             contextIsolation: true,
             nodeIntegration: false,
             nodeIntegrationInWorker: false,
-            backgroundThrottling: false,
             enableRemoteModule: false,
         },
         autoHideMenuBar: true,
@@ -60,6 +60,14 @@ function createWindow() {
             let { width, height } = win.getBounds();
             store.set('windowBounds', { width, height });
         }, 1000);
+    });
+
+    win.on('blur', () => {
+        win.webContents.setFrameRate(1);
+    });
+
+    win.on('focus', () => {
+        win.webContents.setFrameRate(60);
     });
 
     win.on('closed', () => {
