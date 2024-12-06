@@ -4,6 +4,17 @@ import Store from 'electron-store';
 const store = new Store({ name: 'todoist-wrapper-config' });
 let win;
 
+function isSafeForExternalOpen(url) {
+    try {
+        const parsedUrl = new URL(url);
+        const isHttp = parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:';
+        const isNotTodoist = parsedUrl.origin !== 'https://app.todoist.com';
+        return isHttp && isNotTodoist;
+    } catch (e) {
+        return false;
+    }
+}
+
 function setupThemeToggler() {
     const toggleTheme = () => {
         const newTheme = nativeTheme.shouldUseDarkColors ? 'light' : 'dark';
@@ -97,11 +108,6 @@ function setupResizeHandling() {
             store.set('windowBounds', { width, height });
         }, 300);
     });
-}
-
-function isSafeForExternalOpen(url) {
-    // TODO: implement logic to validate external URLs.
-    return true;
 }
 
 app.whenReady().then(createWindow);
