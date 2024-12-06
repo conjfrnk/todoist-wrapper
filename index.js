@@ -1,7 +1,7 @@
-const { app, BrowserWindow, nativeTheme, shell, Menu } = require('electron');
-const Store = require('electron-store');
-const store = new Store({ name: 'todoist-wrapper-config' });
+import { app, BrowserWindow, nativeTheme, shell, Menu } from 'electron';
+import Store from 'electron-store';
 
+const store = new Store({ name: 'todoist-wrapper-config' });
 let win;
 
 function setupThemeToggler() {
@@ -19,6 +19,7 @@ function setupThemeToggler() {
             store.set('theme', newTheme);
         }
     };
+
     autoToggleTheme();
     setInterval(autoToggleTheme, 30 * 60 * 1000);
 
@@ -69,7 +70,11 @@ function createWindow() {
 
     setupResizeHandling();
 
-    const menuTemplate = Menu.getApplicationMenu().items.map(item => item.role ? { role: item.role } : { label: item.label, submenu: item.submenu });
+    const currentMenu = Menu.getApplicationMenu();
+    const menuItems = currentMenu ? currentMenu.items : [];
+    const menuTemplate = menuItems.map(item =>
+        item.role ? { role: item.role } : { label: item.label, submenu: item.submenu }
+    );
 
     menuTemplate.push({
         label: 'Theme',
@@ -94,4 +99,9 @@ function setupResizeHandling() {
     });
 }
 
-app.on('ready', createWindow);
+function isSafeForExternalOpen(url) {
+    // TODO: implement logic to validate external URLs.
+    return true;
+}
+
+app.whenReady().then(createWindow);

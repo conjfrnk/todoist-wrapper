@@ -1,8 +1,9 @@
 {
     "name": "todoist-wrapper",
-    "version": "3.0.0",
+    "version": "3.1.0",
     "description": "Electron Wrapper for Todoist",
     "main": "index.js",
+    "type": "module",
     "scripts": {
         "start": "electron .",
         "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=bin",
