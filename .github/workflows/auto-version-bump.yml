@@ -59,10 +59,10 @@ jobs:
         run: |
           TIMESTAMP=$(date +%Y%m%d%H%M%S)
           FULL_VERSION=$(jq -r .version package.json)
-          # Strip off any suffix after '-' to get the base version
-          BASE_VERSION=$(echo "$FULL_VERSION" | cut -d '-' -f1)
+          # Strip off any suffix after '.' to get the base version
+          BASE_VERSION=$(echo "$FULL_VERSION" | cut -d '.' -f1)
 
-          NEW_VERSION="${BASE_VERSION}-${TIMESTAMP}"
+          NEW_VERSION="${BASE_VERSION}.${TIMESTAMP}"
 
           # Update package.json with new version
           jq ".version = \"${NEW_VERSION}\"" package.json > package.json.tmp && mv package.json.tmp package.json
