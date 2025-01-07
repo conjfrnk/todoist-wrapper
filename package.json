@@ -1,22 +1,22 @@
 {
-    "name": "todoist-wrapper",
-    "version": "3.2.0.20250103224943",
-    "description": "Electron Wrapper for Todoist",
-    "main": "index.js",
-    "type": "module",
-    "scripts": {
-        "start": "electron .",
-        "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=bin",
-        "test": "jest"
-    },
-    "author": "Connor Frank",
-    "license": "SEE LICENSE IN LICENSE",
-    "dependencies": {
-        "electron": "^33.2.1",
-        "electron-store": "^10.0.0"
-    },
-    "devDependencies": {
-        "@electron/packager": "^18.3.6",
-        "jest": "^29.7.0"
-    }
+  "name": "todoist-wrapper",
+  "version": "3.20250107014150",
+  "description": "Electron Wrapper for Todoist",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "electron .",
+    "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=bin",
+    "test": "jest"
+  },
+  "author": "Connor Frank",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "electron": "^33.2.1",
+    "electron-store": "^10.0.0"
+  },
+  "devDependencies": {
+    "@electron/packager": "^18.3.6",
+    "jest": "^29.7.0"
+  }
 }
