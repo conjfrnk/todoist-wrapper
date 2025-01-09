@@ -6,18 +6,19 @@ on:
       - 'v*'
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'  # Run daily at 2 AM UTC, for instance
+    - cron: '0 2 * * *'
 
 jobs:
   build_and_release:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check out code (fetch all tags)
+      - name: Check out code (with all tags)
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # important for accessing all tags
+          fetch-depth: 0  # important so we have access to all tags
 
-      - name: Install GitHub CLI (if not already on runner)
+      - name: Install GitHub CLI (if needed)
         run: |
           sudo apt-get update
           sudo apt-get install -y gh
@@ -28,59 +29,66 @@ jobs:
           node-version: '22'
 
       - name: Find unbuilt tags
-        id: find_tags
+        id: find_unbuilt
         run: |
-          # 1) Grab all tags that start with 'v'
+          # 1) Gather all v* tags in descending order
           ALL_TAGS=$(git tag --list 'v*' | sort -r)
-          UNBUILT_TAGS=""
 
-          # 2) For each tag, check if there's already a release
+          # 2) Build an array of "unbuilt" tags (no existing release)
+          UNBUILT_TAGS=()
           for TAG in $ALL_TAGS; do
-            # Using GH CLI to see if a release exists for this tag
+            # Check if a release exists for this tag
             RELEASE_EXISTS=$(gh release view "$TAG" --json url --jq .url 2>/dev/null || true)
             if [ -z "$RELEASE_EXISTS" ]; then
-              UNBUILT_TAGS+="$TAG"$'\n'
+              UNBUILT_TAGS+=("$TAG")
             fi
           done
 
-          # 3) Debug logging
-          if [ -z "$UNBUILT_TAGS" ]; then
+          # 3) If array is empty, we have no unbuilt tags
+          if [ ${#UNBUILT_TAGS[@]} -eq 0 ]; then
             echo "No unbuilt tags found."
-          else
-            echo "Unbuilt tags found:"
-            echo "$UNBUILT_TAGS"
+            # Even if empty, we can safely output an empty JSON array
+            echo "unbuilt-tags=[]" >> $GITHUB_OUTPUT
+            exit 0
           fi
 
-          # 4) Store multiline output safely via heredoc
-          echo "unbuilt-tags<<EOF" >> $GITHUB_OUTPUT
-          echo "$UNBUILT_TAGS" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "Unbuilt tags found: ${UNBUILT_TAGS[*]}"
+
+          # 4) Convert Bash array -> JSON array (using jq)
+          #    Example output: ["v3.0.0","v2.4.2","v2.0.0"]
+          JSON_TAGS=$(printf '%s\n' "${UNBUILT_TAGS[@]}" | jq -R . | jq -s .)
+
+          # 5) Store JSON array in an output variable
+          echo "unbuilt-tags=$JSON_TAGS" >> $GITHUB_OUTPUT
 
       - name: Build and release each unbuilt tag
-        if: ${{ steps.find_tags.outputs.unbuilt-tags != '' }}
+        if: ${{ steps.find_unbuilt.outputs.unbuilt-tags != '[]' }}
         run: |
-          # 1) Read multiline output into array
-          IFS=$'\n' read -rd '' -a TAG_ARRAY <<< "${{ steps.find_tags.outputs.unbuilt-tags }}"
+          # 1) Extract JSON array from the previous step’s output
+          JSON_TAGS='${{ steps.find_unbuilt.outputs.unbuilt-tags }}'
 
-          # 2) Iterate over each tag
-          for TAG in "${TAG_ARRAY[@]}"; do
-            # Trim potential whitespace or empty lines
-            TAG=$(echo "$TAG" | xargs)
-            [ -z "$TAG" ] && continue  # Skip if empty
+          # 2) Parse JSON array into lines (one tag per line)
+          #    e.g. if JSON_TAGS=["v3.0.0","v2.4.2"]
+          #    then TAG_LIST = 
+          #         v3.0.0
+          #         v2.4.2
+          TAG_LIST=$(echo "$JSON_TAGS" | jq -r '.[]')
 
+          # 3) Iterate over each tag
+          for TAG in $TAG_LIST; do
             echo "==== Building for tag '$TAG' ===="
 
             # Check out that specific tag
             git checkout "$TAG"
 
-            # Install and build
+            # Install dependencies and build
             npm ci
             npm run package-linux
 
-            # Zip artifacts
+            # Zip up artifacts
             zip -r bin/todoist-wrapper-linux-x64.zip bin/todoist-wrapper-linux-x64/
 
-            # Create GH release for this tag
+            # Create a GitHub release for this tag (via gh CLI)
             gh release create "$TAG" ./bin/todoist-wrapper-linux-x64.zip \
               --notes "Automated release for $TAG" \
               --title "Release $TAG"
