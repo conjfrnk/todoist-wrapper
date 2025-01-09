@@ -6,17 +6,21 @@ on:
       - 'v*'
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 2 * * *'  # Example daily run to catch missed tags
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code (all tags)
+      - name: Checkout code (with all tags)
         uses: actions/checkout@v2
         with:
-          # Important to fetch all tags so we can loop through them
           fetch-depth: 0
+
+      - name: Install GitHub CLI (if needed)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gh
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -26,43 +30,46 @@ jobs:
       - name: Determine unbuilt tags
         id: find_tags
         run: |
-          # Get all tags that start with 'v'
+          # List all tags matching "v*"
           ALL_TAGS=$(git tag --list 'v*' | sort -r)
-          
-          # We will accumulate tags that do NOT have releases
           UNBUILT_TAGS=""
-          
+
           for TAG in $ALL_TAGS; do
-            # Check if there's already a release for that TAG
-            # Using GH CLI for illustration (you can also use curl + GitHub API).
-            RELEASE_EXISTS=$(gh release view $TAG --json url --jq .url 2>/dev/null || true)
-            
+            # Check if there's a release for this tag using GH CLI
+            RELEASE_EXISTS=$(gh release view "$TAG" --json url --jq .url 2>/dev/null || true)
             if [ -z "$RELEASE_EXISTS" ]; then
-              # This means there's no release for this tag
-              UNBUILT_TAGS+="$TAG\n"
+              # Add to multiline variable; note the $'\n' for actual newlines
+              UNBUILT_TAGS+="${TAG}"$'\n'
             fi
           done
-          
+
           if [ -z "$UNBUILT_TAGS" ]; then
             echo "No unbuilt tags found."
           else
             echo "Unbuilt tags found:"
-            echo -e "$UNBUILT_TAGS"
+            echo "$UNBUILT_TAGS"
           fi
-          
-          # Export the list so later steps can use it
-          echo "unbuilt-tags=$UNBUILT_TAGS" >> $GITHUB_OUTPUT
+
+          # Use a heredoc to store multiline output safely
+          echo "unbuilt-tags<<EOF" >> $GITHUB_OUTPUT
+          echo "$UNBUILT_TAGS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Build and release each unbuilt tag
         if: ${{ steps.find_tags.outputs.unbuilt-tags != '' }}
         run: |
-          # We stored the tags in unbuilt-tags separated by newlines
-          IFS=$'\n'
-          for TAG in ${{ steps.find_tags.outputs.unbuilt-tags }}; do
-            echo "==== Building for tag $TAG ===="
-            
+          # Turn multiline string into a Bash array
+          IFS=$'\n' read -rd '' -a TAG_ARRAY <<< "${{ steps.find_tags.outputs.unbuilt-tags }}"
+
+          for TAG in "${TAG_ARRAY[@]}"; do
+            # Trim whitespace (in case of any blank lines)
+            TAG=$(echo "$TAG" | xargs)
+            [ -z "$TAG" ] && continue  # skip empty lines
+
+            echo "==== Building for tag '$TAG' ===="
+
             # 1. Check out that specific tag
-            git checkout $TAG
+            git checkout "$TAG"
 
             # 2. Install dependencies & build
             npm ci
@@ -71,8 +78,8 @@ jobs:
             # 3. Zip up artifacts
             zip -r bin/todoist-wrapper-linux-x64.zip bin/todoist-wrapper-linux-x64/
 
-            # 4. Create a release for this tag
-            gh release create $TAG ./bin/todoist-wrapper-linux-x64.zip \
+            # 4. Create release for this tag (using GH CLI)
+            gh release create "$TAG" ./bin/todoist-wrapper-linux-x64.zip \
               --notes "Automated release for $TAG" \
               --title "Release $TAG"
           done
