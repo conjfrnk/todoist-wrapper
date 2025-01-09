@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build and Release Latest Tag
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - 'v*'
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'
+    - cron: '0 2 * * *'  # optional daily check
 
 jobs:
   build_and_release:
@@ -16,7 +16,7 @@ jobs:
       - name: Check out code (with all tags)
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # important so we have access to all tags
+          fetch-depth: 0  # Important so we have access to all tags
 
       - name: Install GitHub CLI (if needed)
         run: |
@@ -28,68 +28,47 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Find unbuilt tags
-        id: find_unbuilt
+      - name: Find the newest v* tag
+        id: find_latest
         run: |
-          # 1) Gather all v* tags in descending order
-          ALL_TAGS=$(git tag --list 'v*' | sort -r)
+          # 1) Get the "latest" v* tag (descending sort, then take the first line)
+          LATEST_TAG=$(git tag --list 'v*' | sort -r | head -n 1)
 
-          # 2) Build an array of "unbuilt" tags (no existing release)
-          UNBUILT_TAGS=()
-          for TAG in $ALL_TAGS; do
-            # Check if a release exists for this tag
-            RELEASE_EXISTS=$(gh release view "$TAG" --json url --jq .url 2>/dev/null || true)
-            if [ -z "$RELEASE_EXISTS" ]; then
-              UNBUILT_TAGS+=("$TAG")
-            fi
-          done
-
-          # 3) If array is empty, we have no unbuilt tags
-          if [ ${#UNBUILT_TAGS[@]} -eq 0 ]; then
-            echo "No unbuilt tags found."
-            # Even if empty, we can safely output an empty JSON array
-            echo "unbuilt-tags=[]" >> $GITHUB_OUTPUT
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No v* tags found in the repository. Skipping."
+            echo "latest-tag=" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          echo "Unbuilt tags found: ${UNBUILT_TAGS[*]}"
+          # 2) Check if a release already exists for this tag
+          RELEASE_EXISTS=$(gh release view "$LATEST_TAG" --json url --jq .url 2>/dev/null || true)
+          if [ -n "$RELEASE_EXISTS" ]; then
+            echo "Latest tag $LATEST_TAG already has a release. Skipping."
+            echo "latest-tag=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
-          # 4) Convert Bash array -> JSON array (using jq)
-          #    Example output: ["v3.0.0","v2.4.2","v2.0.0"]
-          JSON_TAGS=$(printf '%s\n' "${UNBUILT_TAGS[@]}" | jq -R . | jq -s .)
+          # 3) Otherwise, we’ll build this new tag
+          echo "Newest tag without a release: $LATEST_TAG"
+          echo "latest-tag=$LATEST_TAG" >> $GITHUB_OUTPUT
 
-          # 5) Store JSON array in an output variable
-          echo "unbuilt-tags=$JSON_TAGS" >> $GITHUB_OUTPUT
-
-      - name: Build and release each unbuilt tag
-        if: ${{ steps.find_unbuilt.outputs.unbuilt-tags != '[]' }}
+      - name: Build and release latest tag
+        if: ${{ steps.find_latest.outputs.latest-tag != '' }}
         run: |
-          # 1) Extract JSON array from the previous step’s output
-          JSON_TAGS='${{ steps.find_unbuilt.outputs.unbuilt-tags }}'
+          LATEST_TAG='${{ steps.find_latest.outputs.latest-tag }}'
+          echo "==== Building for tag '$LATEST_TAG' ===="
 
-          # 2) Parse JSON array into lines (one tag per line)
-          #    e.g. if JSON_TAGS=["v3.0.0","v2.4.2"]
-          #    then TAG_LIST = 
-          #         v3.0.0
-          #         v2.4.2
-          TAG_LIST=$(echo "$JSON_TAGS" | jq -r '.[]')
+          # 1) Check out that specific tag
+          git checkout "$LATEST_TAG"
 
-          # 3) Iterate over each tag
-          for TAG in $TAG_LIST; do
-            echo "==== Building for tag '$TAG' ===="
+          # 2) Install dependencies & build
+          npm ci
+          npm run package-linux
 
-            # Check out that specific tag
-            git checkout "$TAG"
+          # 3) Zip up artifacts
+          zip -r bin/todoist-wrapper-linux-x64.zip bin/todoist-wrapper-linux-x64/
 
-            # Install dependencies and build
-            npm ci
-            npm run package-linux
-
-            # Zip up artifacts
-            zip -r bin/todoist-wrapper-linux-x64.zip bin/todoist-wrapper-linux-x64/
-
-            # Create a GitHub release for this tag (via gh CLI)
-            gh release create "$TAG" ./bin/todoist-wrapper-linux-x64.zip \
-              --notes "Automated release for $TAG" \
-              --title "Release $TAG"
-          done
+          # 4) Create a GitHub release for this tag
+          gh release create "$LATEST_TAG" ./bin/todoist-wrapper-linux-x64.zip \
+            --notes "Automated release for $LATEST_TAG" \
+            --title "Release $LATEST_TAG"
