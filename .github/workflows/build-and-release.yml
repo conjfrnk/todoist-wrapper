@@ -6,7 +6,7 @@ on:
       - 'v*'
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * *'  # optional daily check
+    - cron: '0 2 * * *'
 
 jobs:
   build_and_release:
@@ -16,10 +16,9 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
         with:
-          # We do want tags so we can find them (you can also do `--tags` in a separate git fetch)
-          fetch-depth: 0
+          fetch-depth: 0  # So we can see all tags
 
-      - name: Install GitHub CLI (if needed)
+      - name: Install GitHub CLI
         run: |
           sudo apt-get update
           sudo apt-get install -y gh
@@ -32,23 +31,15 @@ jobs:
       - name: Find most recent "v*" tag
         id: find_latest
         run: |
-          # 1) Get the commit SHA of the newest v* tag (by commit date).
-          #    This returns just a single SHA, or nothing if no v* tags exist.
           LATEST_TAG_SHA="$(git rev-list --tags='v*' --max-count=1)"
-          
           if [ -z "$LATEST_TAG_SHA" ]; then
-            echo "No 'v*' tags found in this repo."
-            # Expose an empty output so we can conditionally skip later steps
+            echo "No v* tags found. Skipping."
             echo "latest-tag=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           
-          # 2) Convert that commit SHA to an actual tag name
           LATEST_TAG_NAME="$(git describe --tags "$LATEST_TAG_SHA")"
-          
-          echo "Found latest tag: $LATEST_TAG_NAME"
 
-          # 3) Check if there's already a release for that tag
           RELEASE_EXISTS=$(gh release view "$LATEST_TAG_NAME" --json url --jq .url 2>/dev/null || true)
           if [ -n "$RELEASE_EXISTS" ]; then
             echo "A release already exists for $LATEST_TAG_NAME. Skipping."
@@ -56,26 +47,25 @@ jobs:
             exit 0
           fi
 
-          # 4) Output the latest tag name so the next step can use it
           echo "latest-tag=$LATEST_TAG_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Build and release
         if: ${{ steps.find_latest.outputs.latest-tag != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           LATEST_TAG='${{ steps.find_latest.outputs.latest-tag }}'
           echo "Building and releasing $LATEST_TAG ..."
 
-          # 1) Check out that specific tag
+          # "Detached HEAD" is normal when checking out a tag
           git checkout "$LATEST_TAG"
 
-          # 2) Install dependencies & build
           npm ci
           npm run package-linux
 
-          # 3) Zip artifacts
           zip -r bin/todoist-wrapper-linux-x64.zip bin/todoist-wrapper-linux-x64/
 
-          # 4) Create GitHub release
+          # GH CLI needs GH_TOKEN in the environment
           gh release create "$LATEST_TAG" bin/todoist-wrapper-linux-x64.zip \
             --notes "Automated release for $LATEST_TAG" \
             --title "Release $LATEST_TAG"
