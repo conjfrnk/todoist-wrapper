@@ -4,33 +4,75 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code (all tags)
+        uses: actions/checkout@v2
+        with:
+          # Important to fetch all tags so we can loop through them
+          fetch-depth: 0
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '22'
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '22'
 
-    - name: Install dependencies
-      run: npm install
+      - name: Determine unbuilt tags
+        id: find_tags
+        run: |
+          # Get all tags that start with 'v'
+          ALL_TAGS=$(git tag --list 'v*' | sort -r)
+          
+          # We will accumulate tags that do NOT have releases
+          UNBUILT_TAGS=""
+          
+          for TAG in $ALL_TAGS; do
+            # Check if there's already a release for that TAG
+            # Using GH CLI for illustration (you can also use curl + GitHub API).
+            RELEASE_EXISTS=$(gh release view $TAG --json url --jq .url 2>/dev/null || true)
+            
+            if [ -z "$RELEASE_EXISTS" ]; then
+              # This means there's no release for this tag
+              UNBUILT_TAGS+="$TAG\n"
+            fi
+          done
+          
+          if [ -z "$UNBUILT_TAGS" ]; then
+            echo "No unbuilt tags found."
+          else
+            echo "Unbuilt tags found:"
+            echo -e "$UNBUILT_TAGS"
+          fi
+          
+          # Export the list so later steps can use it
+          echo "unbuilt-tags=$UNBUILT_TAGS" >> $GITHUB_OUTPUT
 
-    - name: Build all packages
-      run: npm run package-linux
+      - name: Build and release each unbuilt tag
+        if: ${{ steps.find_tags.outputs.unbuilt-tags != '' }}
+        run: |
+          # We stored the tags in unbuilt-tags separated by newlines
+          IFS=$'\n'
+          for TAG in ${{ steps.find_tags.outputs.unbuilt-tags }}; do
+            echo "==== Building for tag $TAG ===="
+            
+            # 1. Check out that specific tag
+            git checkout $TAG
 
-    - name: Zip binary
-      run: zip -r bin/todoist-wrapper-linux-x64.zip bin/todoist-wrapper-linux-x64/
+            # 2. Install dependencies & build
+            npm ci
+            npm run package-linux
 
-    - name: Create Release
-      id: create_release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: bin/todoist-wrapper-linux-x64.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            # 3. Zip up artifacts
+            zip -r bin/todoist-wrapper-linux-x64.zip bin/todoist-wrapper-linux-x64/
+
+            # 4. Create a release for this tag
+            gh release create $TAG ./bin/todoist-wrapper-linux-x64.zip \
+              --notes "Automated release for $TAG" \
+              --title "Release $TAG"
+          done
