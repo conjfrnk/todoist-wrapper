@@ -13,10 +13,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code (with all tags)
+      - name: Check out code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # Important so we have access to all tags
+          # We do want tags so we can find them (you can also do `--tags` in a separate git fetch)
+          fetch-depth: 0
 
       - name: Install GitHub CLI (if needed)
         run: |
@@ -28,35 +29,41 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Find the newest v* tag
+      - name: Find most recent "v*" tag
         id: find_latest
         run: |
-          # 1) Get the "latest" v* tag (descending sort, then take the first line)
-          LATEST_TAG=$(git tag --list 'v*' | sort -r | head -n 1)
-
-          if [ -z "$LATEST_TAG" ]; then
-            echo "No v* tags found in the repository. Skipping."
-            echo "latest-tag=" >> $GITHUB_OUTPUT
+          # 1) Get the commit SHA of the newest v* tag (by commit date).
+          #    This returns just a single SHA, or nothing if no v* tags exist.
+          LATEST_TAG_SHA="$(git rev-list --tags='v*' --max-count=1)"
+          
+          if [ -z "$LATEST_TAG_SHA" ]; then
+            echo "No 'v*' tags found in this repo."
+            # Expose an empty output so we can conditionally skip later steps
+            echo "latest-tag=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
+          
+          # 2) Convert that commit SHA to an actual tag name
+          LATEST_TAG_NAME="$(git describe --tags "$LATEST_TAG_SHA")"
+          
+          echo "Found latest tag: $LATEST_TAG_NAME"
 
-          # 2) Check if a release already exists for this tag
-          RELEASE_EXISTS=$(gh release view "$LATEST_TAG" --json url --jq .url 2>/dev/null || true)
+          # 3) Check if there's already a release for that tag
+          RELEASE_EXISTS=$(gh release view "$LATEST_TAG_NAME" --json url --jq .url 2>/dev/null || true)
           if [ -n "$RELEASE_EXISTS" ]; then
-            echo "Latest tag $LATEST_TAG already has a release. Skipping."
-            echo "latest-tag=" >> $GITHUB_OUTPUT
+            echo "A release already exists for $LATEST_TAG_NAME. Skipping."
+            echo "latest-tag=" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # 3) Otherwise, we’ll build this new tag
-          echo "Newest tag without a release: $LATEST_TAG"
-          echo "latest-tag=$LATEST_TAG" >> $GITHUB_OUTPUT
+          # 4) Output the latest tag name so the next step can use it
+          echo "latest-tag=$LATEST_TAG_NAME" >> "$GITHUB_OUTPUT"
 
-      - name: Build and release latest tag
+      - name: Build and release
         if: ${{ steps.find_latest.outputs.latest-tag != '' }}
         run: |
           LATEST_TAG='${{ steps.find_latest.outputs.latest-tag }}'
-          echo "==== Building for tag '$LATEST_TAG' ===="
+          echo "Building and releasing $LATEST_TAG ..."
 
           # 1) Check out that specific tag
           git checkout "$LATEST_TAG"
@@ -65,10 +72,10 @@ jobs:
           npm ci
           npm run package-linux
 
-          # 3) Zip up artifacts
+          # 3) Zip artifacts
           zip -r bin/todoist-wrapper-linux-x64.zip bin/todoist-wrapper-linux-x64/
 
-          # 4) Create a GitHub release for this tag
-          gh release create "$LATEST_TAG" ./bin/todoist-wrapper-linux-x64.zip \
+          # 4) Create GitHub release
+          gh release create "$LATEST_TAG" bin/todoist-wrapper-linux-x64.zip \
             --notes "Automated release for $LATEST_TAG" \
             --title "Release $LATEST_TAG"
