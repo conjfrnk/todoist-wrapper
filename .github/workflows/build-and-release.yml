@@ -16,12 +16,19 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0  # So we see all tags
+          fetch-depth: 0  # So we can see all tags
 
       - name: Install GitHub CLI
         run: |
           sudo apt-get update
           sudo apt-get install -y gh
+
+      - name: Authenticate GH CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Explicitly authenticate
+          echo "$GH_TOKEN" | gh auth login --with-token
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -30,8 +37,9 @@ jobs:
 
       - name: Find the newest "v*" tag
         id: find_latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # 1) Get the commit SHA of the newest v* tag
           LATEST_TAG_SHA="$(git rev-list --tags='v*' --max-count=1)"
           if [ -z "$LATEST_TAG_SHA" ]; then
             echo "No v* tags found."
@@ -39,11 +47,12 @@ jobs:
             exit 0
           fi
 
-          # 2) Convert that commit SHA to a tag name
           LATEST_TAG_NAME="$(git describe --tags "$LATEST_TAG_SHA")"
           echo "Found newest tag: $LATEST_TAG_NAME"
 
-          # 3) Check if a release already exists for this tag
+          # Ensure we are authenticated
+          # (We've already done 'gh auth login' above, but let's just be explicit)
+          # GH CLI should now see private releases, etc.
           RELEASE_EXISTS=$(gh release view "$LATEST_TAG_NAME" --json url --jq .url 2>/dev/null || true)
           if [ -n "$RELEASE_EXISTS" ]; then
             echo "A release already exists for $LATEST_TAG_NAME. Skipping..."
@@ -51,11 +60,10 @@ jobs:
             exit 0
           fi
 
-          # 4) Output the tag name if no release found
+          # If we get here, no release was found
           echo "latest_tag=$LATEST_TAG_NAME" >> "$GITHUB_OUTPUT"
 
       - name: Build and release
-        # This step will only run if latest_tag != ''
         if: ${{ steps.find_latest.outputs.latest_tag != '' }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -63,7 +71,7 @@ jobs:
           LATEST_TAG='${{ steps.find_latest.outputs.latest_tag }}'
           echo "Building and releasing $LATEST_TAG..."
 
-          # Detached HEAD is normal when checking out a tag
+          # "Detached HEAD" is normal when checking out a tag
           git checkout "$LATEST_TAG"
 
           npm ci
@@ -71,7 +79,6 @@ jobs:
 
           zip -r bin/todoist-wrapper-linux-x64.zip bin/todoist-wrapper-linux-x64/
 
-          # Create GitHub release (only if no release existed)
           gh release create "$LATEST_TAG" bin/todoist-wrapper-linux-x64.zip \
             --notes "Automated release for $LATEST_TAG" \
             --title "Release $LATEST_TAG"
