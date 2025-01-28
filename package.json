@@ -13,7 +13,7 @@
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "electron": "^33.2.1",
-    "electron-store": "^10.0.0"
+    "electron-store": "^10.0.1"
   },
   "devDependencies": {
     "@electron/packager": "^18.3.6",
