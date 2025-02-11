@@ -66,9 +66,11 @@ function createWindow() {
     });
 
     function handleNavigation(event, navigationUrl) {
-        const parsedUrl = new URL(navigationUrl);
-        if (parsedUrl.origin !== 'https://app.todoist.com') {
+        if (isSafeForExternalOpen(navigationUrl)) {
+            // Prevent navigation in the current window…
             event.preventDefault();
+            // …and open the URL in the user's default browser.
+            shell.openExternal(navigationUrl);
         }
     }
 
