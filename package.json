@@ -1,6 +1,6 @@
 {
   "name": "todoist-wrapper",
-  "version": "4.20250513015632",
+  "version": "4.20250514015523",
   "description": "Electron Wrapper for Todoist",
   "main": "index.js",
   "type": "module",
