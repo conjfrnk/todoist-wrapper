@@ -12,7 +12,7 @@
   "author": "Connor Frank",
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "electron": "^35.0.0",
+    "electron": "^36.5.0",
     "electron-store": "^10.0.0"
   },
   "devDependencies": {
