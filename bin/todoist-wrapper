@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+
+import { spawn } from 'child_process';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const electronPath = join(__dirname, '..', 'node_modules', '.bin', 'electron');
+const appPath = join(__dirname, '..');
+
+const child = spawn(electronPath, [appPath], {
+    stdio: 'inherit',
+    detached: true
+});
+
+child.unref();

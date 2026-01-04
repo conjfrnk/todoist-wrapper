@@ -4,11 +4,36 @@
   "description": "Electron Wrapper for Todoist",
   "main": "index.js",
   "type": "module",
+  "bin": {
+    "todoist-wrapper": "./bin/todoist-wrapper"
+  },
   "scripts": {
     "start": "electron .",
-    "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=bin",
+    "package-linux": "electron-packager . --overwrite --platform=linux --arch=x64 --out=dist",
+    "package-rpm": "npm run package-linux && ./scripts/build-rpm.sh",
     "test": "jest"
   },
+  "files": [
+    "index.js",
+    "theme.js",
+    "bin/",
+    "assets/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/conjfrnk/todoist-wrapper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/conjfrnk/todoist-wrapper/issues"
+  },
+  "homepage": "https://github.com/conjfrnk/todoist-wrapper#readme",
+  "keywords": [
+    "todoist",
+    "electron",
+    "wrapper",
+    "linux",
+    "wayland"
+  ],
   "author": "Connor Frank",
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Todoist
+Comment=Electron Wrapper for Todoist
+Exec=todoist-wrapper
+Icon=todoist-wrapper
+Terminal=false
+Type=Application
+Categories=Office;ProjectManagement;
+Keywords=todo;task;productivity;todoist;
+StartupWMClass=todoist-wrapper

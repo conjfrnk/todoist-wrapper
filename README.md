@@ -7,28 +7,49 @@ Also, this has Wayland support.
 I have implemented several of [these security recommendations](https://www.electronjs.org/docs/latest/tutorial/security) as of v2.0.0
 
 ## Install
-Use `install.sh` to install the binary file
 
-I wish there was a way to be able to use `npm install -g conjfrnk/todoist-wrapper` or something like that, but I've experienced failure after failure with that so I'm sticking with what I know.
+### npm (Recommended for most users)
 
-Use `uninstall.sh` to uninstall everything
+```bash
+npm install -g github:conjfrnk/todoist-wrapper
+todoist-wrapper
+```
 
-## Gentoo
-First add [my overlay](https://github.com/conjfrnk/overlay)
+### Fedora/RHEL
 
-`eselect repository add conjfrnk-overlay git https://github.com/conjfrnk/overlay.git`
+```bash
+sudo dnf install https://github.com/conjfrnk/todoist-wrapper/releases/latest/download/todoist-wrapper-latest.rpm
+```
 
-Then emerge the package
+### Gentoo
 
-`emerge todoist-wrapper`
+First add [my overlay](https://github.com/conjfrnk/overlay):
 
-Note that this will install the binary package (compiled by GitHub Actions and released under [releases](https://github.com/conjfrnk/todoist-wrapper/releases/latest)) and will not compile from source. I am working on how to compile from source.
+```bash
+eselect repository add conjfrnk-overlay git https://github.com/conjfrnk/overlay.git
+```
+
+Then emerge the package:
+
+```bash
+emerge todoist-wrapper
+```
+
+Note that this will install the binary package (compiled by GitHub Actions and released under [releases](https://github.com/conjfrnk/todoist-wrapper/releases/latest)) and will not compile from source.
+
+### Generic Linux (Manual)
+
+Use `install.sh` to install the binary file, or download from [releases](https://github.com/conjfrnk/todoist-wrapper/releases/latest).
+
+Use `uninstall.sh` to uninstall everything.
 
 ## Other Package Managers
-- Fedora coming eventually
-- Arch too? Sometime down the road
+
+- Arch - coming sometime down the road
 
 ## Develop
-`npm install` to install dependencies
 
-`npm run start` to run the app
+```bash
+npm install    # Install dependencies
+npm run start  # Run the app
+```
