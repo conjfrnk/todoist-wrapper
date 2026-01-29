@@ -8,7 +8,7 @@ const {
     validateBounds,
     parseEnvBool,
     parseEnvInt
-} = require('../config');
+} = require('../config.cjs');
 
 describe('parseEnvBool', () => {
     test('returns default for undefined', () => {

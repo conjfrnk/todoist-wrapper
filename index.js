@@ -4,7 +4,12 @@ import { createRequire } from 'module';
 
 // Use createRequire for CommonJS config module
 const require = createRequire(import.meta.url);
-const { getConfig, getThemeForHour, isSafeForExternalOpen, validateBounds } = require('./config');
+const {
+    getConfig,
+    getThemeForHour,
+    isSafeForExternalOpen,
+    validateBounds
+} = require('./config.cjs');
 
 // Load configuration
 const config = getConfig();

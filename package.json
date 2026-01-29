@@ -20,7 +20,7 @@
     },
     "files": [
         "index.js",
-        "config.js",
+        "config.cjs",
         "theme.js",
         "bin/",
         "assets/"

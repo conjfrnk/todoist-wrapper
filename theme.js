@@ -1,7 +1,7 @@
 // theme.js
 // Re-exports theme functions from config for backwards compatibility
 
-const { getThemeForHour, getConfig } = require('./config');
+const { getThemeForHour, getConfig } = require('./config.cjs');
 
 /**
  * Get theme for a given hour (legacy function for backwards compatibility)
