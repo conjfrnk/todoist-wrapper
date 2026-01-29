@@ -3,14 +3,35 @@
 import { spawn } from 'child_process';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
+import { existsSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const electronPath = join(__dirname, '..', 'node_modules', '.bin', 'electron');
 const appPath = join(__dirname, '..');
 
-const child = spawn(electronPath, [appPath], {
-    stdio: 'inherit',
-    detached: true
-});
+// Verify electron binary exists before spawning
+if (!existsSync(electronPath)) {
+    console.error(`Error: Electron binary not found at ${electronPath}`);
+    console.error('Please run "npm install" to install dependencies.');
+    process.exit(1);
+}
 
-child.unref();
+try {
+    const child = spawn(electronPath, [appPath], {
+        stdio: 'inherit',
+        detached: true
+    });
+
+    child.on('error', error => {
+        console.error('Failed to start Electron process:', error.message);
+        process.exit(1);
+    });
+
+    // Give the process a moment to fail fast if there's an immediate issue
+    setTimeout(() => {
+        child.unref();
+    }, 100);
+} catch (error) {
+    console.error('Failed to spawn Electron process:', error.message);
+    process.exit(1);
+}
