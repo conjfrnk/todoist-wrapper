@@ -11,9 +11,11 @@ I built this because [the official Flatpak](https://github.com/flathub/com.todoi
 - **Automatic Theme Switching** - Automatically toggles between light and dark themes based on time of day
 - **Manual Theme Toggle** - Override auto-theme via the Theme menu
 - **Window State Persistence** - Remembers window size and position across sessions
-- **Network Resilience** - Automatic retry with exponential backoff for failed connections
+- **Network Resilience** - Circuit breaker pattern with automatic retry and exponential backoff
 - **Offline Detection** - User-friendly error page with auto-retry when connection is restored
-- **Secure by Default** - Context isolation, sandbox mode, and URL validation enabled
+- **Structured Logging** - JSON logging with rotation for debugging and monitoring
+- **Memory Management** - Automatic memory monitoring with GC triggers
+- **Secure by Default** - CSP headers, context isolation, sandbox mode, and URL validation
 
 ## Installation
 
@@ -73,6 +75,7 @@ The application can be configured via environment variables:
 | `TODOIST_LIGHT_THEME_END_HOUR`   | Hour to switch to dark theme (24h format)      | `18`                      |
 | `TODOIST_MAX_RETRIES`            | Connection retry attempts before showing error | `3`                       |
 | `TODOIST_TIMEOUT_MS`             | Request timeout in milliseconds                | `30000`                   |
+| `LOG_LEVEL`                      | Logging verbosity (debug, info, warn, error)   | `info`                    |
 
 Example usage:
 
@@ -84,7 +87,7 @@ TODOIST_LIGHT_THEME_START_HOUR=7 TODOIST_LIGHT_THEME_END_HOUR=20 todoist-wrapper
 
 ### Prerequisites
 
-- Node.js (LTS recommended)
+- Node.js 18+ (LTS recommended)
 - npm
 
 ### Setup
@@ -93,46 +96,74 @@ TODOIST_LIGHT_THEME_START_HOUR=7 TODOIST_LIGHT_THEME_END_HOUR=20 todoist-wrapper
 git clone https://github.com/conjfrnk/todoist-wrapper.git
 cd todoist-wrapper
 npm install
+npm run build
 ```
 
 ### Available Scripts
 
-| Command                 | Description                       |
-| ----------------------- | --------------------------------- |
-| `npm start`             | Run the application               |
-| `npm test`              | Run the test suite                |
-| `npm run lint`          | Check code with ESLint            |
-| `npm run lint:fix`      | Fix linting issues automatically  |
-| `npm run format`        | Format code with Prettier         |
-| `npm run format:check`  | Check code formatting             |
-| `npm run validate`      | Run lint, format check, and tests |
-| `npm run package-linux` | Build Linux binary package        |
-| `npm run package-rpm`   | Build RPM package for Fedora/RHEL |
+| Command                 | Description                                |
+| ----------------------- | ------------------------------------------ |
+| `npm run build`         | Compile TypeScript to JavaScript           |
+| `npm start`             | Build and run the application              |
+| `npm test`              | Run the test suite                         |
+| `npm run test:coverage` | Run tests with coverage report             |
+| `npm run typecheck`     | Type-check without emitting                |
+| `npm run lint`          | Check code with ESLint                     |
+| `npm run lint:fix`      | Fix linting issues automatically           |
+| `npm run format`        | Format code with Prettier                  |
+| `npm run format:check`  | Check code formatting                      |
+| `npm run validate`      | Run typecheck, lint, format, and tests     |
+| `npm run package-linux` | Build Linux binary package                 |
+| `npm run package-rpm`   | Build RPM package for Fedora/RHEL          |
 
 ### Project Structure
 
 ```
 todoist-wrapper/
-├── index.js          # Main Electron application
-├── config.cjs        # Configuration management
-├── theme.js          # Theme compatibility layer
-├── bin/              # CLI entry point
-├── assets/           # Desktop entry and icons
-├── scripts/          # Build scripts
-├── rpm/              # RPM packaging spec
-└── test/             # Test suite
+├── src/
+│   ├── main.ts              # Application entry point
+│   ├── preload.ts           # Secure preload script
+│   ├── services/            # Service modules
+│   │   ├── ConfigService    # Zod-validated configuration
+│   │   ├── LoggerService    # Pino-based structured logging
+│   │   ├── StoreService     # Async persistence with caching
+│   │   ├── SecurityService  # CSP and URL validation
+│   │   ├── NetworkService   # Circuit breaker and retry logic
+│   │   ├── ThemeService     # Auto theme scheduling
+│   │   └── WindowService    # Window lifecycle management
+│   ├── types/               # TypeScript type definitions
+│   └── utils/               # Utility functions
+├── dist/                    # Compiled JavaScript output
+├── test/                    # Test suite
+├── bin/                     # CLI entry point
+├── assets/                  # Desktop entry and icons
+├── scripts/                 # Build scripts
+└── rpm/                     # RPM packaging spec
 ```
+
+### Architecture
+
+The application uses a service-oriented architecture with:
+
+- **TypeScript** with strict mode for type safety
+- **Zod** for runtime configuration validation
+- **Pino** for structured JSON logging with file rotation
+- **Circuit breaker pattern** for network resilience
+- **Singleton services** with dependency injection
 
 ## Security
 
 This application implements several [Electron security best practices](https://www.electronjs.org/docs/latest/tutorial/security):
 
+- **Content Security Policy** - Restricts resource loading to Todoist domains
 - **Context Isolation** - Renderer process is isolated from Node.js
 - **Sandbox Mode** - Renderer runs in a sandboxed environment
 - **Node Integration Disabled** - No direct Node.js access from web content
 - **Remote Module Disabled** - Legacy remote module is disabled
+- **Secure Preload** - IPC bridge with input validation
 - **URL Validation** - External URLs are validated before opening
 - **Protocol Restrictions** - Only HTTP/HTTPS protocols allowed for external links
+- **Permission Handlers** - Explicit permission grants (only notifications allowed)
 
 ## Contributing
 
