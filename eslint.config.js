@@ -1,9 +1,72 @@
-// eslint.config.js - ESLint flat config
+// eslint.config.js - ESLint flat config with TypeScript support
 import js from '@eslint/js';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsparser from '@typescript-eslint/parser';
 
 export default [
     js.configs.recommended,
     {
+        files: ['**/*.ts'],
+        languageOptions: {
+            ecmaVersion: 2022,
+            sourceType: 'module',
+            parser: tsparser,
+            parserOptions: {
+                project: './tsconfig.json'
+            },
+            globals: {
+                // Node.js globals
+                process: 'readonly',
+                console: 'readonly',
+                setTimeout: 'readonly',
+                clearTimeout: 'readonly',
+                setInterval: 'readonly',
+                clearInterval: 'readonly',
+                setImmediate: 'readonly',
+                __dirname: 'readonly',
+                __filename: 'readonly',
+                Buffer: 'readonly',
+                URL: 'readonly',
+                global: 'readonly'
+            }
+        },
+        plugins: {
+            '@typescript-eslint': tseslint
+        },
+        rules: {
+            // TypeScript-specific rules
+            '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+            '@typescript-eslint/explicit-function-return-type': 'off',
+            '@typescript-eslint/explicit-module-boundary-types': 'off',
+            '@typescript-eslint/no-explicit-any': 'warn',
+            '@typescript-eslint/no-non-null-assertion': 'warn',
+
+            // Disable base rules that are handled by TypeScript
+            'no-unused-vars': 'off',
+            'no-undef': 'off',
+
+            // Error prevention
+            'no-console': 'off',
+            'no-debugger': 'error',
+
+            // Best practices
+            eqeqeq: ['error', 'always'],
+            'no-eval': 'error',
+            'no-implied-eval': 'error',
+            'no-new-func': 'error',
+            'no-return-await': 'error',
+            'require-await': 'off', // TypeScript handles this better
+
+            // Style
+            'prefer-const': 'error',
+            'no-var': 'error',
+            'object-shorthand': 'error',
+            'prefer-template': 'error',
+            'prefer-arrow-callback': 'error'
+        }
+    },
+    {
+        files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
         languageOptions: {
             ecmaVersion: 2022,
             sourceType: 'module',
@@ -38,7 +101,7 @@ export default [
             // Error prevention
             'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
             'no-undef': 'error',
-            'no-console': 'off', // Allow console for logging
+            'no-console': 'off',
             'no-debugger': 'error',
 
             // Best practices
@@ -49,7 +112,7 @@ export default [
             'no-return-await': 'error',
             'require-await': 'error',
 
-            // Style (handled by Prettier, but some semantic ones)
+            // Style
             'prefer-const': 'error',
             'no-var': 'error',
             'object-shorthand': 'error',
@@ -59,19 +122,29 @@ export default [
     },
     {
         // CommonJS files
-        files: ['**/*.cjs', 'config.js', 'theme.js'],
+        files: ['**/*.cjs'],
         languageOptions: {
             sourceType: 'commonjs'
         }
     },
     {
         // Test files
-        files: ['test/**/*.js'],
+        files: ['test/**/*.js', 'test/**/*.ts'],
         languageOptions: {
-            sourceType: 'commonjs'
+            globals: {
+                describe: 'readonly',
+                test: 'readonly',
+                it: 'readonly',
+                expect: 'readonly',
+                beforeEach: 'readonly',
+                afterEach: 'readonly',
+                beforeAll: 'readonly',
+                afterAll: 'readonly',
+                jest: 'readonly'
+            }
         }
     },
     {
-        ignores: ['node_modules/**', 'dist/**', 'coverage/**']
+        ignores: ['node_modules/**', 'dist/**', 'dist-package/**', 'coverage/**']
     }
 ];

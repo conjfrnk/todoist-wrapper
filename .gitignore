@@ -89,7 +89,17 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
+
+# TypeScript build output
+dist/
+
+# Electron packager output
+dist-package/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
 
 # Gatsby files
 .cache/

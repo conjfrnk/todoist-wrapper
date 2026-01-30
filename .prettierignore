@@ -1,6 +1,9 @@
 node_modules/
 dist/
+dist-package/
 coverage/
 package-lock.json
 *.rpm
 *.zip
+playwright-report/
+test-results/

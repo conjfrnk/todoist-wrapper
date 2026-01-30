@@ -64,15 +64,15 @@ curl -fsSL https://raw.githubusercontent.com/conjfrnk/todoist-wrapper/main/unins
 
 The application can be configured via environment variables:
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `TODOIST_URL` | Todoist instance URL (for enterprise) | `https://app.todoist.com` |
-| `TODOIST_AUTO_THEME` | Enable automatic theme switching | `true` |
-| `TODOIST_THEME_INTERVAL_MINUTES` | How often to check time for theme switch | `30` |
-| `TODOIST_LIGHT_THEME_START_HOUR` | Hour to switch to light theme (24h format) | `6` |
-| `TODOIST_LIGHT_THEME_END_HOUR` | Hour to switch to dark theme (24h format) | `18` |
-| `TODOIST_MAX_RETRIES` | Connection retry attempts before showing error | `3` |
-| `TODOIST_TIMEOUT_MS` | Request timeout in milliseconds | `30000` |
+| Variable                         | Description                                    | Default                   |
+| -------------------------------- | ---------------------------------------------- | ------------------------- |
+| `TODOIST_URL`                    | Todoist instance URL (for enterprise)          | `https://app.todoist.com` |
+| `TODOIST_AUTO_THEME`             | Enable automatic theme switching               | `true`                    |
+| `TODOIST_THEME_INTERVAL_MINUTES` | How often to check time for theme switch       | `30`                      |
+| `TODOIST_LIGHT_THEME_START_HOUR` | Hour to switch to light theme (24h format)     | `6`                       |
+| `TODOIST_LIGHT_THEME_END_HOUR`   | Hour to switch to dark theme (24h format)      | `18`                      |
+| `TODOIST_MAX_RETRIES`            | Connection retry attempts before showing error | `3`                       |
+| `TODOIST_TIMEOUT_MS`             | Request timeout in milliseconds                | `30000`                   |
 
 Example usage:
 
@@ -97,17 +97,17 @@ npm install
 
 ### Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `npm start` | Run the application |
-| `npm test` | Run the test suite |
-| `npm run lint` | Check code with ESLint |
-| `npm run lint:fix` | Fix linting issues automatically |
-| `npm run format` | Format code with Prettier |
-| `npm run format:check` | Check code formatting |
-| `npm run validate` | Run lint, format check, and tests |
-| `npm run package-linux` | Build Linux binary package |
-| `npm run package-rpm` | Build RPM package for Fedora/RHEL |
+| Command                 | Description                       |
+| ----------------------- | --------------------------------- |
+| `npm start`             | Run the application               |
+| `npm test`              | Run the test suite                |
+| `npm run lint`          | Check code with ESLint            |
+| `npm run lint:fix`      | Fix linting issues automatically  |
+| `npm run format`        | Format code with Prettier         |
+| `npm run format:check`  | Check code formatting             |
+| `npm run validate`      | Run lint, format check, and tests |
+| `npm run package-linux` | Build Linux binary package        |
+| `npm run package-rpm`   | Build RPM package for Fedora/RHEL |
 
 ### Project Structure
 
