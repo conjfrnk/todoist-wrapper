@@ -33,8 +33,8 @@ export default {
     // Test file patterns - only run TypeScript tests for utils (which don't need Electron)
     testMatch: ['**/test/utils/**/*.test.ts', '**/test/services/ConfigService.test.ts'],
 
-    // Ignore legacy JS tests
-    testPathIgnorePatterns: ['/node_modules/', '\\.js$'],
+    // Ignore legacy JS tests and packaged app
+    testPathIgnorePatterns: ['/node_modules/', '/dist-package/', '\\.js$'],
 
     // Coverage configuration
     collectCoverageFrom: ['src/utils/**/*.ts', 'src/services/ConfigService.ts', '!src/**/*.d.ts'],

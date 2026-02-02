@@ -6,7 +6,7 @@ import tsparser from '@typescript-eslint/parser';
 export default [
     js.configs.recommended,
     {
-        files: ['**/*.ts'],
+        files: ['src/**/*.ts'],
         languageOptions: {
             ecmaVersion: 2022,
             sourceType: 'module',
@@ -128,8 +128,39 @@ export default [
         }
     },
     {
-        // Test files
-        files: ['test/**/*.js', 'test/**/*.ts'],
+        // Test files (TypeScript)
+        files: ['test/**/*.ts'],
+        languageOptions: {
+            ecmaVersion: 2022,
+            sourceType: 'module',
+            parser: tsparser,
+            parserOptions: {
+                project: './tsconfig.test.json'
+            },
+            globals: {
+                describe: 'readonly',
+                test: 'readonly',
+                it: 'readonly',
+                expect: 'readonly',
+                beforeEach: 'readonly',
+                afterEach: 'readonly',
+                beforeAll: 'readonly',
+                afterAll: 'readonly',
+                jest: 'readonly'
+            }
+        },
+        plugins: {
+            '@typescript-eslint': tseslint
+        },
+        rules: {
+            '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+            'no-unused-vars': 'off',
+            'no-undef': 'off'
+        }
+    },
+    {
+        // Test files (JavaScript)
+        files: ['test/**/*.js'],
         languageOptions: {
             globals: {
                 describe: 'readonly',

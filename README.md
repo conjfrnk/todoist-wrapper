@@ -101,20 +101,20 @@ npm run build
 
 ### Available Scripts
 
-| Command                 | Description                                |
-| ----------------------- | ------------------------------------------ |
-| `npm run build`         | Compile TypeScript to JavaScript           |
-| `npm start`             | Build and run the application              |
-| `npm test`              | Run the test suite                         |
-| `npm run test:coverage` | Run tests with coverage report             |
-| `npm run typecheck`     | Type-check without emitting                |
-| `npm run lint`          | Check code with ESLint                     |
-| `npm run lint:fix`      | Fix linting issues automatically           |
-| `npm run format`        | Format code with Prettier                  |
-| `npm run format:check`  | Check code formatting                      |
-| `npm run validate`      | Run typecheck, lint, format, and tests     |
-| `npm run package-linux` | Build Linux binary package                 |
-| `npm run package-rpm`   | Build RPM package for Fedora/RHEL          |
+| Command                 | Description                            |
+| ----------------------- | -------------------------------------- |
+| `npm run build`         | Compile TypeScript to JavaScript       |
+| `npm start`             | Build and run the application          |
+| `npm test`              | Run the test suite                     |
+| `npm run test:coverage` | Run tests with coverage report         |
+| `npm run typecheck`     | Type-check without emitting            |
+| `npm run lint`          | Check code with ESLint                 |
+| `npm run lint:fix`      | Fix linting issues automatically       |
+| `npm run format`        | Format code with Prettier              |
+| `npm run format:check`  | Check code formatting                  |
+| `npm run validate`      | Run typecheck, lint, format, and tests |
+| `npm run package-linux` | Build Linux binary package             |
+| `npm run package-rpm`   | Build RPM package for Fedora/RHEL      |
 
 ### Project Structure
 
