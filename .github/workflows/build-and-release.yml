@@ -74,7 +74,7 @@ jobs:
                   npm run package-linux
 
                   # Create zip for generic Linux
-                  zip -r dist/todoist-wrapper-linux-x64.zip dist/todoist-wrapper-linux-x64/
+                  zip -r dist/todoist-wrapper-linux-x64.zip dist-package/todoist-wrapper-linux-x64/
 
                   # Build RPM package
                   VERSION=$(echo "$LATEST_TAG" | sed 's/^v//')
