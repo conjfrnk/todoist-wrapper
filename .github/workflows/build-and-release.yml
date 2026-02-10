@@ -69,6 +69,7 @@ jobs:
                   echo "Building and releasing $LATEST_TAG..."
 
                   git checkout "$LATEST_TAG"  # "Detached HEAD" is normal on a tag
+                  git checkout main -- rpm/todoist-wrapper.spec
 
                   npm ci
                   npm run package-linux
