@@ -22,7 +22,7 @@ mkdir -p %{buildroot}/opt/todoist-wrapper
 mkdir -p %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_datadir}/applications
 
-cp -r dist/todoist-wrapper-linux-x64/* %{buildroot}/opt/todoist-wrapper/
+cp -r dist-package/todoist-wrapper-linux-x64/* %{buildroot}/opt/todoist-wrapper/
 
 ln -sf /opt/todoist-wrapper/todoist-wrapper %{buildroot}%{_bindir}/todoist-wrapper
 
