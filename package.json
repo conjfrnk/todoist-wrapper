@@ -1,69 +1,69 @@
 {
-    "name": "todoist-wrapper",
-    "version": "4.20260210025231",
-    "description": "Electron Wrapper for Todoist",
-    "main": "dist/main.js",
-    "type": "module",
-    "bin": {
-        "todoist-wrapper": "./bin/todoist-wrapper"
-    },
-    "scripts": {
-        "build": "tsc",
-        "start": "npm run build && electron .",
-        "dev": "tsc --watch & electron .",
-        "package-linux": "npm run build && electron-packager . --overwrite --platform=linux --arch=x64 --out=dist-package",
-        "package-rpm": "npm run package-linux && ./scripts/build-rpm.sh",
-        "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-        "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-        "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.integration.config.js",
-        "test:e2e": "playwright test",
-        "lint": "eslint src test --ext .ts,.js",
-        "lint:fix": "eslint src test --ext .ts,.js --fix",
-        "format": "prettier --write .",
-        "format:check": "prettier --check .",
-        "typecheck": "tsc --noEmit",
-        "validate": "npm run typecheck && npm run lint && npm run format:check && npm run test:coverage"
-    },
-    "files": [
-        "dist/",
-        "bin/",
-        "assets/"
-    ],
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/conjfrnk/todoist-wrapper.git"
-    },
-    "bugs": {
-        "url": "https://github.com/conjfrnk/todoist-wrapper/issues"
-    },
-    "homepage": "https://github.com/conjfrnk/todoist-wrapper#readme",
-    "keywords": [
-        "todoist",
-        "electron",
-        "wrapper",
-        "linux",
-        "wayland"
-    ],
-    "author": "Connor Frank",
-    "license": "SEE LICENSE IN LICENSE",
-    "dependencies": {
-        "electron": "^37.0.0",
-        "electron-store": "^10.0.0",
-        "pino": "^9.0.0",
-        "zod": "^3.24.0"
-    },
-    "devDependencies": {
-        "@electron/packager": "^18.3.6",
-        "@eslint/js": "^9.0.0",
-        "@playwright/test": "^1.50.0",
-        "@types/jest": "^30.0.0",
-        "@types/node": "^22.0.0",
-        "@typescript-eslint/eslint-plugin": "^8.0.0",
-        "@typescript-eslint/parser": "^8.0.0",
-        "eslint": "^9.0.0",
-        "jest": "^30.0.2",
-        "prettier": "^3.0.0",
-        "ts-jest": "^29.2.0",
-        "typescript": "^5.7.0"
-    }
+  "name": "todoist-wrapper",
+  "version": "4.20260211025015",
+  "description": "Electron Wrapper for Todoist",
+  "main": "dist/main.js",
+  "type": "module",
+  "bin": {
+    "todoist-wrapper": "./bin/todoist-wrapper"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "npm run build && electron .",
+    "dev": "tsc --watch & electron .",
+    "package-linux": "npm run build && electron-packager . --overwrite --platform=linux --arch=x64 --out=dist-package",
+    "package-rpm": "npm run package-linux && ./scripts/build-rpm.sh",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
+    "test:integration": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.integration.config.js",
+    "test:e2e": "playwright test",
+    "lint": "eslint src test --ext .ts,.js",
+    "lint:fix": "eslint src test --ext .ts,.js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "validate": "npm run typecheck && npm run lint && npm run format:check && npm run test:coverage"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "assets/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/conjfrnk/todoist-wrapper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/conjfrnk/todoist-wrapper/issues"
+  },
+  "homepage": "https://github.com/conjfrnk/todoist-wrapper#readme",
+  "keywords": [
+    "todoist",
+    "electron",
+    "wrapper",
+    "linux",
+    "wayland"
+  ],
+  "author": "Connor Frank",
+  "license": "SEE LICENSE IN LICENSE",
+  "dependencies": {
+    "electron": "^37.0.0",
+    "electron-store": "^10.0.0",
+    "pino": "^9.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@electron/packager": "^18.3.6",
+    "@eslint/js": "^9.0.0",
+    "@playwright/test": "^1.50.0",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "jest": "^30.0.2",
+    "prettier": "^3.0.0",
+    "ts-jest": "^29.2.0",
+    "typescript": "^5.7.0"
+  }
 }
