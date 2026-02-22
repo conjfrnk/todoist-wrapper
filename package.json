@@ -47,7 +47,7 @@
   "author": "Connor Frank",
   "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
-    "electron": "^37.0.0",
+    "electron": "^40.6.0",
     "electron-store": "^10.0.0",
     "pino": "^9.0.0",
     "zod": "^3.24.0"
