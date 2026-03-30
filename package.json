@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "@electron/packager": "^18.3.6",
-    "@eslint/js": "^9.0.0",
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.50.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^22.0.0",
