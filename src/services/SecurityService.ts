@@ -60,14 +60,14 @@ export class SecurityService implements SecurityServiceInterface {
      */
     public generateCSP(): string {
         const directives: CSPDirectives = {
-            'default-src': ["'self'", 'https://*.todoist.com'],
-            'script-src': ["'self'", 'https://*.todoist.com', "'unsafe-inline'", "'unsafe-eval'"],
-            'style-src': ["'self'", 'https://*.todoist.com', "'unsafe-inline'"],
-            'img-src': ["'self'", 'https://*.todoist.com', 'data:', 'blob:'],
-            'connect-src': ["'self'", 'https://*.todoist.com', 'wss://*.todoist.com'],
+            'default-src': ["'self'", 'https://*.todoist.com', 'https://*.b-cdn.net', 'https://*.cloudfront.net'],
+            'script-src': ["'self'", 'https://*.todoist.com', 'https://*.b-cdn.net', 'https://*.cloudfront.net', "'unsafe-inline'", "'unsafe-eval'"],
+            'style-src': ["'self'", 'https://*.todoist.com', 'https://*.b-cdn.net', 'https://*.cloudfront.net', "'unsafe-inline'"],
+            'img-src': ["'self'", 'https://*.todoist.com', 'https://*.b-cdn.net', 'https://*.cloudfront.net', 'data:', 'blob:'],
+            'connect-src': ["'self'", 'https://*.todoist.com', 'wss://*.todoist.com', 'https://*.b-cdn.net', 'https://*.cloudfront.net'],
             'frame-src': ["'none'"],
             'object-src': ["'none'"],
-            'font-src': ["'self'", 'https://*.todoist.com', 'data:']
+            'font-src': ["'self'", 'https://*.todoist.com', 'https://*.b-cdn.net', 'https://*.cloudfront.net', 'data:']
         };
 
         return Object.entries(directives)

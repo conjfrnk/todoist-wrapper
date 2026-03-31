@@ -239,10 +239,10 @@ async function createWindow(): Promise<void> {
  */
 app.whenReady()
     .then(async () => {
-        logger.info('App ready, initializing');
-
-        // Initialize services
+        // Initialize services (must be first — sets up logger and config)
         await initializeServices();
+
+        logger.info('App ready, initializing');
 
         // Set up error handlers
         setupErrorHandlers();
@@ -273,7 +273,7 @@ app.whenReady()
  * App lifecycle: all windows closed
  */
 app.on('window-all-closed', () => {
-    logger.info('All windows closed');
+    logger?.info('All windows closed');
     // On macOS, apps typically stay open until explicitly quit
     if (process.platform !== 'darwin') {
         app.quit();
@@ -286,9 +286,9 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
     // On macOS, re-create window when dock icon is clicked
     if (BrowserWindow.getAllWindows().length === 0) {
-        logger.info('Reactivating app, creating new window');
+        logger?.info('Reactivating app, creating new window');
         createWindow().catch(error => {
-            logger.error('Failed to create window on activate', error);
+            logger?.error('Failed to create window on activate', error);
         });
     }
 });
@@ -297,7 +297,7 @@ app.on('activate', () => {
  * App lifecycle: before quit
  */
 app.on('before-quit', async () => {
-    logger.info('App quitting, cleaning up resources');
+    logger?.info('App quitting, cleaning up resources');
 
     // Stop memory monitor
     memoryMonitor.stop();
@@ -309,7 +309,7 @@ app.on('before-quit', async () => {
     await StoreService.getInstance().flush();
 
     // Flush logs
-    await logger.flush();
+    await logger?.flush();
 
-    logger.info('Cleanup complete');
+    logger?.info('Cleanup complete');
 });
