@@ -239,10 +239,10 @@ async function createWindow(): Promise<void> {
  */
 app.whenReady()
     .then(async () => {
-        logger.info('App ready, initializing');
-
-        // Initialize services
+        // Initialize services (must happen first - sets up logger)
         await initializeServices();
+
+        logger.info('App ready, services initialized');
 
         // Set up error handlers
         setupErrorHandlers();
