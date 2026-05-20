@@ -1,5 +1,9 @@
 # todoist-wrapper
 
+> **NOTICE: ACTIVE DEVELOPMENT PAUSED**
+>
+> **The [official Todoist Flatpak](https://github.com/flathub/com.todoist.Todoist) is now being kept up to date, so active development on this wrapper has been paused.**
+
 A lightweight Electron wrapper for [Todoist](https://app.todoist.com) that provides a native desktop experience on Linux with full Wayland support.
 
 I built this because [the official Flatpak](https://github.com/flathub/com.todoist.Todoist) was 5+ months outdated and couldn't run on my system anymore.
